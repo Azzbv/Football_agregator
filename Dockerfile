@@ -5,7 +5,7 @@
 # Uvicorn (single entry point: the `fdp` console script).
 
 # ---- Stage 1: builder ------------------------------------------------------
-FROM python:3.12-slim-bookworm AS builder
+FROM python:3.14-slim-bookworm AS builder
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1 \
@@ -31,7 +31,7 @@ RUN for pkg in shared ingestion unification api ui app; do \
     done
 
 # ---- Stage 2: runtime ------------------------------------------------------
-FROM python:3.12-slim-bookworm AS runtime
+FROM python:3.14-slim-bookworm AS runtime
 
 # Non-root runtime user.
 RUN useradd --create-home --uid 10001 appuser
