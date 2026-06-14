@@ -1,0 +1,31 @@
+# Runtime third-party dependencies for the whole stack (flattened from every
+# package's pyproject). Install with plain pip:
+#
+#   python -m pip install -r requirements.txt
+#   # then install the local packages editable, in dependency order:
+#   python -m pip install -e packages/shared -e packages/ingestion \
+#       -e packages/unification -e packages/api -e packages/ui -e packages/app
+#
+# (scripts/install.sh / install.ps1 and the Makefile do this for you.)
+
+# --- shared ---
+pydantic>=2.9
+pydantic-settings>=2.6
+pymongo>=4.9
+structlog>=24.4
+
+# --- ingestion ---
+httpx>=0.27
+tenacity>=9.0
+aiolimiter>=1.1
+selectolax>=0.3.21
+
+# --- unification ---
+jsonpath-ng>=1.6
+
+# --- api / app ---
+fastapi>=0.115
+uvicorn[standard]>=0.32
+
+# --- ui ---
+nicegui>=2.7

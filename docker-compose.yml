@@ -1,0 +1,47 @@
+# Single-entry-point deployment: `docker compose up` builds and runs the app.
+#
+# By default the app connects to the MongoDB ALREADY RUNNING ON THE HOST at
+# :27171 — NOT a Mongo inside compose. On Mac/Windows the host is reachable via
+# `host.docker.internal`; on Linux the `extra_hosts` mapping below routes that
+# name to the host gateway. The connection is fully env-driven via MONGODB_URI,
+# so switching to the optional self-contained Mongo (bottom of file) is a
+# one-line .env change — no code edits.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: football-data-platform:latest
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    env_file:
+      - .env
+    environment:
+      # Default targets the host Mongo at :27171. Override in .env to point
+      # elsewhere (e.g. the optional `mongo` service: mongodb://mongo:27017).
+      MONGODB_URI: ${MONGODB_URI:-mongodb://host.docker.internal:27171/?directConnection=true}
+    # Makes `host.docker.internal` resolve to the host on Linux too (it already
+    # works on Docker Desktop / Mac / Windows).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # OPTIONAL self-contained MongoDB. Disabled by default. To run a Mongo inside
+  # compose instead of using the host instance:
+  #   1. uncomment this service block,
+  #   2. set MONGODB_URI=mongodb://mongo:27017/?directConnection=true in .env,
+  #   3. (optional) add `depends_on: [mongo]` under the app service.
+  # The named volume persists data across restarts.
+  # ---------------------------------------------------------------------------
+  # mongo:
+  #   image: mongo:7
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - mongo_data:/data/db
+  #   restart: unless-stopped
+
+# volumes:
+#   mongo_data:

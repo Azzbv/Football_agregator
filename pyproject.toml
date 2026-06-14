@@ -1,0 +1,55 @@
+# Root config. This is NOT an installable package; it only holds shared tool
+# configuration (ruff, mypy, pytest). Each bounded context under `packages/` is
+# its own installable package (PEP 621 + hatchling) installed editable with pip.
+#
+# There is no workspace manager: install order is shared -> ingestion ->
+# unification -> api -> ui -> app, all via `pip install -e` (see Makefile /
+# scripts/install.sh / requirements*.txt).
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["packages/*/src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM", "RUF"]
+# B008: FastAPI Depends() in defaults is an intentional pattern.
+# TC***: moving annotations into TYPE_CHECKING blocks breaks Pydantic v2, which
+# needs field types resolvable at runtime — so the typing-only-import rules are
+# off platform-wide.
+ignore = ["B008"]
+
+[tool.ruff.lint.isort]
+# Editable first-party packages.
+known-first-party = ["fdp_shared", "fdp_ingestion", "fdp_unification", "fdp_api", "fdp_ui", "fdp_app"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["B008", "E501"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+# Strict typing targets the shipped source; tests use loose fixtures/shims and
+# are validated by pytest, not the type checker.
+exclude = "(^|/)tests/"
+warn_unused_ignores = true
+warn_redundant_casts = true
+namespace_packages = true
+explicit_package_bases = true
+mypy_path = [
+    "packages/shared/src",
+    "packages/ingestion/src",
+    "packages/unification/src",
+    "packages/api/src",
+    "packages/ui/src",
+    "packages/app/src",
+]
+
+[[tool.mypy.overrides]]
+module = ["testcontainers.*", "selectolax.*", "aiolimiter.*", "jsonpath_ng.*", "nicegui.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["packages"]
+addopts = "-ra"
