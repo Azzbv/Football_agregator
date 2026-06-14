@@ -35,13 +35,13 @@ services:
   #   3. (optional) add `depends_on: [mongo]` under the app service.
   # The named volume persists data across restarts.
   # ---------------------------------------------------------------------------
-  # mongo:
-  #   image: mongo:7
-  #   ports:
-  #     - "27017:27017"
-  #   volumes:
-  #     - mongo_data:/data/db
-  #   restart: unless-stopped
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
 
 # volumes:
 #   mongo_data:
